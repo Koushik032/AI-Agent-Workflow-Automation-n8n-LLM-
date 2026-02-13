@@ -1,0 +1,251 @@
+{
+  "name": "Assement 01",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.feedback }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "<prompt>\n\n    <role>\n        You are a business message classifier and data extractor.\n    </role>\n\n    <input>\n        <user_requirement>\n            {{ $json.body.requirement }}\n        </user_requirement>\n    </input>\n\n    <tasks>\n        <task>Carefully analyze the user requirement message.</task>\n\n        <task>\n            Classify the intent into one of the following categories:\n\n            <categories>\n                <category name=\"Sales\">\n                    If the user wants to buy, sell, or inquire about products/services.\n                </category>\n                <category name=\"Support\">\n                    If the user needs help, reports a problem, or faces an issue.\n                </category>\n                <category name=\"Spam\">\n                    Any unrelated, promotional, unclear, casual, greeting-only, \n                    incomplete, or irrelevant messages must be classified as Spam.\n                </category>\n            </categories>\n        </task>\n\n        <task>\n            Extract the following structured data:\n            - Person name → store as \"name\"\n            - Organization name → store as \"company\"\n            - Requirement summary → store as \"requirement\" (must be in ONE clear sentence)\n\n            IMPORTANT EDGE CASE:\n            If intent = \"Spam\":\n                - Set name = null\n                - Set company = null\n                - Store the FULL original user message inside \"requirement\"\n                - Do NOT summarize spam messages.\n        </task>\n    </tasks>\n\n    <responses>\n        <response type=\"Support\">\n            Thank you for messaging us. Our support team will contact you as soon as possible.\n        </response>\n\n        <response type=\"Sales\">\n            Thank you for messaging us. Our sales team will contact you as soon as possible.\n        </response>\n\n        <response type=\"Spam\">\n            Thank you for contacting us. Our management team will review your message.\n        </response>\n    </responses>\n\n    <rules>\n        <rule>\n            If the message does not clearly belong to Sales or Support,\n            it MUST be classified as Spam.\n        </rule>\n\n        <rule>\n            For Spam:\n            - name = null\n            - company = null\n            - requirement = original full user message\n        </rule>\n\n        <rule>\n            Return the following fields in structured JSON format:\n            {\n                \"intent\": \"\",\n                \"name\": \"\",\n                \"company\": \"\",\n                \"requirement\": \"\",\n                \"response\": \"\"\n            }\n        </rule>\n    </rules>\n\n    <examples>\n\n        <example>\n            <lead_message>\n                Hello, this is Rahim from TechNova Ltd.\n                We are interested in purchasing your AI chatbot solution for our website.\n                Please share pricing and demo details.\n            </lead_message>\n\n            <intent>Sales</intent>\n\n            <extracted_fields>\n                <name>Rahim</name>\n                <company>TechNova Ltd</company>\n                <requirement>\n                    Interested in purchasing AI chatbot solution and wants pricing and demo details.\n                </requirement>\n            </extracted_fields>\n\n            <auto_reply>\n                Thank you for messaging us. Our sales team will contact you as soon as possible.\n            </auto_reply>\n        </example>\n\n        <example>\n            <lead_message>\n                Hi, I am Sarah from Bright Solutions.\n                Our chatbot integration is not working properly and showing API errors.\n                Please help urgently.\n            </lead_message>\n\n            <intent>Support</intent>\n\n            <extracted_fields>\n                <name>Sarah</name>\n                <company>Bright Solutions</company>\n                <requirement>\n                    Chatbot integration is not working and showing API errors.\n                </requirement>\n            </extracted_fields>\n\n            <auto_reply>\n                Thank you for messaging us. Our support team will contact you as soon as possible.\n            </auto_reply>\n        </example>\n\n        <example>\n            <lead_message>\n                Earn $5000 per week working from home.\n                Click this link now to get started!!!\n            </lead_message>\n\n            <intent>Spam</intent>\n\n            <extracted_fields>\n                <name>null</name>\n                <company>null</company>\n                <requirement>\n                    Earn $5000 per week working from home. Click this link now to get started!!!\n                </requirement>\n            </extracted_fields>\n\n            <auto_reply>\n                Thank you for contacting us. Our management team will review your message.\n            </auto_reply>\n        </example>\n\n    </examples>\n\n</prompt>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -64,
+        -16
+      ],
+      "id": "2b42d2b9-c52a-4bfe-8cdb-8f624b9b4d88",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -208,
+        192
+      ],
+      "id": "c954da7f-aa23-4ef6-9b20-83929a88c85d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "Bo0XZnfLL8wv3kOt",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1EkrmN5bieyC35ZykIWZzXFyKf2b71fbsFITvMBtAvxw",
+          "mode": "list",
+          "cachedResultName": "Untitled spreadsheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EkrmN5bieyC35ZykIWZzXFyKf2b71fbsFITvMBtAvxw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EkrmN5bieyC35ZykIWZzXFyKf2b71fbsFITvMBtAvxw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.output.name }}",
+            "Company Name": "={{ $json.output.company }}",
+            "Requirment": "={{ $json.output.requirement }}",
+            "Response": "={{ $json.output.response }}"
+          },
+          "matchingColumns": [
+            "Name"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Requirment",
+              "displayName": "Requirment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Response",
+              "displayName": "Response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        320,
+        160
+      ],
+      "id": "15354e47-f318-4685-8cfa-b6560eafe040",
+      "name": "For Data Store",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YU7wwOfgFCoex6bo",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "0be881eb-c2c9-49e3-bd00-d999ee331979",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -272,
+        -16
+      ],
+      "id": "4e4ed181-bf33-4b09-afba-aaaad2265924",
+      "name": "Receive Response",
+      "webhookId": "0be881eb-c2c9-49e3-bd00-d999ee331979"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.output.response }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        352,
+        -16
+      ],
+      "id": "307cfbe8-7c00-4b58-92c1-1409f428627a",
+      "name": "Response Back"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"intent\": \"Support\",\n  \"name\": \"Tanvir\",\n  \"company\": \"NexaSoft\",\n  \"requirement\": \"Chatbot integration is showing timeout errors and needs urgent assistance.\",\n  \"response\": \"Thank you for messaging us. Our support team will contact you as soon as possible.\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        192
+      ],
+      "id": "dbc8571a-5973-42d8-9a22-a2e55de4bef6",
+      "name": "For Divide in Different field"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "For Data Store",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Response Back",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "For Data Store": {
+      "main": [
+        []
+      ]
+    },
+    "Receive Response": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "For Divide in Different field": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "fb171654-342a-4a74-8e1d-02a5d0d8e4d8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33ec859a31eb8808330d1a0275d90b16875e927375262e068568e23369639458"
+  },
+  "id": "lStsZdlhsXqfMQIy",
+  "tags": []
+}
