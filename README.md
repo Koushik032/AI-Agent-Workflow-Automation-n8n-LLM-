@@ -4,8 +4,8 @@ A web-based system that automatically classifies incoming messages into **Sales,
 
 ![Web UI Screenshot](./assets/web-ui(01).png)
 ![Web UI Screenshot](./assets/web-ui(02).png)
-![Workflow Screenshot](./assets/workflow.png)
-![Google Sheet Screenshot](./assets/google-sheet.png)
+![Workflow Screenshot](./assets/Screenshot(96).png)
+![Google Sheet Screenshot](./assets/Screenshot(95).png)
 
 ## 🚀 Features
 - Classifies messages into Sales, Support, or Spam
