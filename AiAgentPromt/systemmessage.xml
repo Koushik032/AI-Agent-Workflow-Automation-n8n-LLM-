@@ -24,8 +24,7 @@
                     If the user needs help, reports a problem, or faces an issue.
                 </category>
                 <category name="Spam">
-                    Any unrelated, promotional, unclear, casual, greeting-only, 
-                    incomplete, or irrelevant messages must be classified as Spam.
+                    Any other unrelated or unclear messages.
                 </category>
             </categories>
         </task>
@@ -36,12 +35,7 @@
             - Organization name → store as "company"
             - Requirement summary → store as "requirement" (must be in ONE clear sentence)
 
-            IMPORTANT EDGE CASE:
-            If intent = "Spam":
-                - Set name = null
-                - Set company = null
-                - Store the FULL original user message inside "requirement"
-                - Do NOT summarize spam messages.
+            If any field is not found, set it as null.
         </task>
     </tasks>
 
@@ -60,28 +54,8 @@
     </responses>
 
     <rules>
-        <rule>
-            If the message does not clearly belong to Sales or Support,
-            it MUST be classified as Spam.
-        </rule>
-
-        <rule>
-            For Spam:
-            - name = null
-            - company = null
-            - requirement = original full user message
-        </rule>
-
-        <rule>
-            Return the following fields in structured JSON format:
-            {
-                "intent": "",
-                "name": "",
-                "company": "",
-                "requirement": "",
-                "response": ""
-            }
-        </rule>
+        <rule>Return the name, company_name, response and your response. </rule>
+        
     </rules>
 
     <examples>
@@ -142,7 +116,7 @@
                 <name>null</name>
                 <company>null</company>
                 <requirement>
-                    Earn $5000 per week working from home. Click this link now to get started!!!
+                    Promotional spam message.
                 </requirement>
             </extracted_fields>
 
